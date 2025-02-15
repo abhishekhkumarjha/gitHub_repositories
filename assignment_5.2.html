@@ -1,0 +1,125 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repositories</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input {
+            padding: 10px;
+            width: 70%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            margin-left: 10px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>GitHub Repositories</h2>
+    <input type="text" id="username" placeholder="Enter GitHub Username">
+    <button onclick="fetchRepos()">Fetch Repos</button>
+
+    <table id="repoTable">
+        <thead>
+            <tr>
+                <th>Repository Name</th>
+                <th>Description</th>
+                <th>Language</th>
+                <th>Stars</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+    function fetchRepos() {
+        let username = document.getElementById("username").value.trim();
+        if (username === "") {
+            alert("Please enter a GitHub username.");
+            return;
+        }
+
+        let url = `https://api.github.com/users/${username}/repos`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("User not found or API limit exceeded.");
+                }
+                return response.json();
+            })
+            .then(repos => displayRepos(repos))
+            .catch(error => alert(error.message));
+    }
+
+    function displayRepos(repos) {
+        let tableBody = document.querySelector("#repoTable tbody");
+        tableBody.innerHTML = "";
+
+        if (repos.length === 0) {
+            tableBody.innerHTML = "<tr><td colspan='4'>No repositories found.</td></tr>";
+            return;
+        }
+
+        repos.forEach(repo => {
+            let row = `<tr>
+                <td><a href="${repo.html_url}" target="_blank">${repo.name}</a></td>
+                <td>${repo.description ? repo.description : "No description"}</td>
+                <td>${repo.language ? repo.language : "N/A"}</td>
+                <td>${repo.stargazers_count}</td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+    }
+</script>
+
+</body>
+</html>
